@@ -1,44 +1,23 @@
-all: elfs 
-#bins
+SOURCES = connect.s execve.s execve_sh.s exit.s helloworld.s readfile.s
 
-elfs: exit helloworld readfile execve_sh execve connect
+SRCS=$(addprefix src/,$(SOURCES))
+OBJS=$(addprefix obj/,$(SOURCES:.s=.o))
+ELFS=$(addprefix elf/,$(SOURCES:.s=.elf))
+BINS=$(addprefix bin/,$(SOURCES:.s=.bin))
 
-#bins: helloworld.bin
+all: $(OBJS) $(ELFS) $(BINS)
 
-exit: exit.o
-	ld -o exit exit.o
+obj/%.o: src/%.s
+	as -o $@ $<
 
-exit.o: exit.s
-	as -o exit.o exit.s
+elf/%.elf: obj/%.o
+	ld -o $@ $<
 
-helloworld: helloworld.o
-	ld -o helloworld helloworld.o
+bin/%.bin: elf/%.elf
+	objcopy -O binary --only-section=.text $< $@
 
-helloworld.o: helloworld.s
-	as -o helloworld.o helloworld.s
-
-
-readfile: readfile.o
-	ld -o readfile readfile.o
-
-readfile.o: readfile.s
-	as -o readfile.o readfile.s
-
-execve_sh: execve_sh.o
-	ld -o execve_sh execve_sh.o
-
-execve_sh.o: execve_sh.s
-	as -o execve_sh.o execve_sh.s
-
-
-execve: execve.o
-	ld -o execve execve.o
-
-execve.o: execve.s
-	as -o execve.o execve.s
-
-connect: connect.o
-	ld -o connect connect.o
-
-connect.o: connect.s
-	as -o connect.o connect.s
+.PHONY : clean
+clean:
+	rm obj/*
+	rm elf/*
+	rm bin/*
