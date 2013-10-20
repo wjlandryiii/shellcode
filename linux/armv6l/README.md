@@ -1,4 +1,4 @@
-armsuffs
+EABI arm stuffs
 
 http://man7.org/linux/man-pages/man2/syscall.2.html
 

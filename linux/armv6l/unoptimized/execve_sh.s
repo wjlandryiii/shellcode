@@ -14,6 +14,5 @@ exit:
     mov r7, #1
     svc 0
 
-
 filename:
 .ascii "/bin/sh\000"
