@@ -51,7 +51,7 @@ dup2:
   mov $0x03, %ecx #int newfd
   int $0x80
 
-  jmp stage2
+  jmp next_stage
 
 exit:
   mov $0x1, %eax # sys_exit()
@@ -66,5 +66,5 @@ addr:
 .short 0xD204
 .byte 127,0,0,1
 
-stage2:
-  jmp stage2
+next_stage:
+  jmp next_stage
