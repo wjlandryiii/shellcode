@@ -1,23 +1,49 @@
-SOURCES = spin.s debug.s
+BUILDSCRIPTSDIR=../../../../../build_scripts
+SRCDIR=src
+OBJDIR=obj
+ELFDIR=elf
+BINDIR=bin
+PYDIR=py
 
-SRCS=$(addprefix src/,$(SOURCES))
-OBJS=$(addprefix obj/,$(SOURCES:.s=.o))
-ELFS=$(addprefix elf/,$(SOURCES:.s=.elf))
-BINS=$(addprefix bin/,$(SOURCES:.s=.bin))
+SOURCES = $(notdir $(wildcard src/*.s))
 
-all: $(OBJS) $(ELFS) $(BINS)
+SRCS=$(addprefix $(SRCDIR)/,$(SOURCES))
+OBJS=$(addprefix $(OBJDIR)/,$(SOURCES:.s=.o))
+ELFS=$(addprefix $(ELFDIR)/,$(SOURCES:.s=.elf))
+BINS=$(addprefix $(BINDIR)/,$(SOURCES:.s=.bin))
+PYS=$(addprefix $(PYDIR)/,$(SOURCES:.s=.py))
 
-obj/%.o: src/%.s
+all: $(OBJS) $(ELFS) $(BINS) $(PYS)
+
+$(OBJS): | $(OBJDIR)
+$(ELFS): | $(ELFDIR)
+$(BINS): | $(BINDIR)
+$(PYS): | $(PYDIR)
+
+$(OBJDIR):
+	mkdir -p obj
+$(ELFDIR):
+	mkdir -p elf
+$(BINDIR):
+	mkdir -p bin
+$(PYDIR):
+	mkdir -p py
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.s
 	as -o $@ $<
 
-elf/%.elf: obj/%.o
+$(ELFDIR)/%.elf: $(OBJDIR)/%.o
 	ld -o $@ $<
 
-bin/%.bin: elf/%.elf
+$(BINDIR)/%.bin: $(ELFDIR)/%.elf
 	objcopy -O binary --only-section=.text $< $@
+
+$(PYDIR)/%.py: $(BINDIR)/%.bin
+	$(BUILDSCRIPTSDIR)/bin2py.py sc $< $@
 
 .PHONY : clean
 clean:
-	rm obj/*
-	rm elf/*
-	rm bin/*
+	rm -f $(OBJDIR)/*
+	rm -f $(ELFDIR)/*
+	rm -f $(BINDIR)/*
+	rm -f $(PYDIR)/*

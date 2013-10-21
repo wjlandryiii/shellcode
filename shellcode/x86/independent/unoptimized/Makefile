@@ -1,3 +1,4 @@
+BUILDSCRIPTSDIR=../../../../../build_scripts
 SRCDIR=src
 OBJDIR=obj
 ELFDIR=elf
@@ -38,7 +39,7 @@ $(BINDIR)/%.bin: $(ELFDIR)/%.elf
 	objcopy -O binary --only-section=.text $< $@
 
 $(PYDIR)/%.py: $(BINDIR)/%.bin
-	../../../bin2py.py $(notdir $(basename $@))_shellcode $< $@
+	$(BUILDSCRIPTSDIR)/bin2py.py $(notdir $(basename $@))_shellcode $< $@
 
 .PHONY : clean
 clean:
