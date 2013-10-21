@@ -67,4 +67,4 @@ addr:
 .byte 127,0,0,1
 
 next_stage:
-  jmp next_stage
+

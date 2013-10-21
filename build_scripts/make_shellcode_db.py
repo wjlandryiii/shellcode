@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import os
+import sys
 
-sc_dir = "shellcode"
 
 print "#!/usr/bin/python"
 print ""
@@ -17,26 +17,29 @@ print ""
 def add_shellcode(path, arch, platform, optimization, name):
 	sc = open(path, "r").read()
 	print sc
-	print "if \"{platform}\" not in shellcode_db: shellcode_db[\"{platform}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=filename)
-	print "if \"{arch}\" not in shellcode_db[\"{platform}\"]: shellcode_db[\"{platform}\"][\"{arch}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=filename)
-	print "if \"{optimization}\" not in shellcode_db[\"{platform}\"][\"{arch}\"]: shellcode_db[\"{platform}\"][\"{arch}\"][\"{optimization}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=filename)
-	print "shellcode_db[\"{platform}\"][\"{arch}\"][\"{optimization}\"][\"{name}\"] = sc".format(arch = arch, platform = platform, optimization = optimization, name=filename)
+	print "if \"{platform}\" not in shellcode_db: shellcode_db[\"{platform}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=name)
+	print "if \"{arch}\" not in shellcode_db[\"{platform}\"]: shellcode_db[\"{platform}\"][\"{arch}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=name)
+	print "if \"{optimization}\" not in shellcode_db[\"{platform}\"][\"{arch}\"]: shellcode_db[\"{platform}\"][\"{arch}\"][\"{optimization}\"] = dict()".format(arch = arch, platform = platform, optimization = optimization, name=name)
+	print "shellcode_db[\"{platform}\"][\"{arch}\"][\"{optimization}\"][\"{name}\"] = sc".format(arch = arch, platform = platform, optimization = optimization, name=name)
 	print ""
 
 # this NEEDS to be cleaned up
-for arch in os.listdir(sc_dir):
-	path = os.path.join(sc_dir, arch)
-	if(os.path.isdir(path)):
-		for platform in os.listdir(path):
-			path = os.path.join(sc_dir, arch, platform)
-			if(os.path.isdir(path)):
-				for optimization in os.listdir(path):
-					path = os.path.join(sc_dir, arch, platform, optimization)
-					if(os.path.isdir(path)):
-						path = os.path.join(path, "py")
+def find_shellcode(sc_dir):
+	for arch in os.listdir(sc_dir):
+		path = os.path.join(sc_dir, arch)
+		if(os.path.isdir(path)):
+			for platform in os.listdir(path):
+				path = os.path.join(sc_dir, arch, platform)
+				if(os.path.isdir(path)):
+					for optimization in os.listdir(path):
+						path = os.path.join(sc_dir, arch, platform, optimization)
 						if(os.path.isdir(path)):
-							for filename in os.listdir(path):
-								if(filename[-3:] == ".py"):
-									add_shellcode(os.path.join(path, filename), arch, platform, optimization, filename[:-3])
+							path = os.path.join(path, "py")
+							if(os.path.isdir(path)):
+								for filename in os.listdir(path):
+									if(filename[-3:] == ".py"):
+										add_shellcode(os.path.join(path, filename), arch, platform, optimization, filename[:-3])
+
+find_shellcode(sys.argv[1])
 
 print "# end of generated code"

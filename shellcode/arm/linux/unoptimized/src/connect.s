@@ -52,8 +52,9 @@ exit:
 
 addr:
 .short 2
+params:
 .short 0xD204
 .byte 127,0,0,1
 
 next_stage:
-    b next_stage
+
