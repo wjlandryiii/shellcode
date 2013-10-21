@@ -1,30 +1,48 @@
-SOURCES = connect.s execve.s execve_sh.s exit.s helloworld.s readfile.s
+SRCDIR=src
+OBJDIR=obj
+ELFDIR=elf
+BINDIR=bin
+PYDIR=py
 
-SRCS=$(addprefix src/,$(SOURCES))
-OBJS=$(addprefix obj/,$(SOURCES:.s=.o))
-ELFS=$(addprefix elf/,$(SOURCES:.s=.elf))
-BINS=$(addprefix bin/,$(SOURCES:.s=.bin))
-PYS=$(addprefix py/,$(SOURCES:.s=.py))
+SOURCES = $(notdir $(wildcard src/*.s))
+
+SRCS=$(addprefix $(SRCDIR)/,$(SOURCES))
+OBJS=$(addprefix $(OBJDIR)/,$(SOURCES:.s=.o))
+ELFS=$(addprefix $(ELFDIR)/,$(SOURCES:.s=.elf))
+BINS=$(addprefix $(BINDIR)/,$(SOURCES:.s=.bin))
+PYS=$(addprefix $(PYDIR)/,$(SOURCES:.s=.py))
 
 all: $(OBJS) $(ELFS) $(BINS) $(PYS)
 
-obj/%.o: src/%.s
+$(OBJS): | $(OBJDIR)
+$(ELFS): | $(ELFDIR)
+$(BINS): | $(BINDIR)
+$(PYS): | $(PYDIR)
+
+$(OBJDIR):
+	mkdir -p obj
+$(ELFDIR):
+	mkdir -p elf
+$(BINDIR):
+	mkdir -p bin
+$(PYDIR):
+	mkdir -p py
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.s
 	as -o $@ $<
 
-elf/%.elf: obj/%.o
+$(ELFDIR)/%.elf: $(OBJDIR)/%.o
 	ld -o $@ $<
 
-bin/%.bin: elf/%.elf
+$(BINDIR)/%.bin: $(ELFDIR)/%.elf
 	objcopy -O binary --only-section=.text $< $@
 
-py/%.py: bin/%.bin
+$(PYDIR)/%.py: $(BINDIR)/%.bin
 	../../../bin2py.py $(notdir $(basename $@))_shellcode $< $@
-
-
 
 .PHONY : clean
 clean:
-	rm -f obj/*
-	rm -f elf/*
-	rm -f bin/*
-	rm -f py/*
+	rm -f $(OBJDIR)/*
+	rm -f $(ELFDIR)/*
+	rm -f $(BINDIR)/*
+	rm -f $(PYDIR)/*
