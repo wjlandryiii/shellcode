@@ -5,7 +5,7 @@ _start:
     jmp end
 begin:
     popl %esi
-    mov (%esi), %edi
+    movl (%esi), %edi
 
 dup2:
     mov $0x3f, %eax # sys_dup2(int oldfd, int newfd)

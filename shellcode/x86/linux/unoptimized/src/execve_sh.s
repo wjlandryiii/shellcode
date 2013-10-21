@@ -8,8 +8,11 @@ begin:
 
   movl $0xb, %eax # sys_execve()
   movl %esi, %ebx # char *filename
-  movl $0x0, %ecx # char *argv[]
-  movl $0x0, %edx # char *envp[]
+  pushl $0x0
+  pushl %esi
+  movl %esp, %ecx # char *argv[]
+  pushl $0x0
+  movl %esp, %edx # char *envp[]
   int $0x80
 
 end:
