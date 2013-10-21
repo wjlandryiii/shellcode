@@ -1,4 +1,4 @@
-BUILDSCRIPTSDIR=../../../../../build_scripts
+BUILDSCRIPTSDIR=../../../../build_scripts/
 SRCDIR=src
 OBJDIR=obj
 ELFDIR=elf
