@@ -12,6 +12,9 @@ openfile:
   movl $0x0, %ecx #flags
   movl $0x0, %edx #mode
   int $0x80
+openfile_test:
+  cmp $0x0, %eax
+  jl exit
 
 savefd:
   movl %eax, %edi
