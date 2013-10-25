@@ -1,2 +1,0 @@
-sc = ""
-sc += "\xfe\xff\xff\xea"
