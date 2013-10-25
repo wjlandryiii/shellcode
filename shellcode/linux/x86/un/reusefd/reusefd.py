@@ -1,3 +1,4 @@
+from asm.reusefd import reusefd_shellcode
 
 def reusefd(fd):
 	import struct

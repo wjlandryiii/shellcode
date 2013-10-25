@@ -1,3 +1,4 @@
+from asm.readfile import readfile_shellcode
 
 def readfile(filename):
 	params = filename + "\x00"
