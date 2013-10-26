@@ -18,7 +18,7 @@ if __name__ == "__main__":
 		print "\tWill output to stdout if ouput file is not specified"
 	else:
 		f = open(sys.argv[2], "rb")
-		code = print_shellcode(f.read(), sys.argv[1])
+		code = bin2py(f.read(), sys.argv[1])
 		f.close()
 		if(len(sys.argv) == 3):
 			print code
