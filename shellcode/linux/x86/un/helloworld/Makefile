@@ -4,7 +4,10 @@ OPTIMIZATION=$(notdir $(shell readlink -f ../))
 METHOD=$(notdir $(shell pwd))
 BUILDDIR=build
 
-all: $(METHOD)_shellcode.py
+all: $(BUILDDIR) $(METHOD)_shellcode.py
+
+$(BUILDDIR):
+	mkdir -p $(BUILDDIR)
 
 $(METHOD)_shellcode.py: $(BUILDDIR)/$(METHOD).bin
 	python -m shellcode.bin2py $(METHOD)_shellcode $< $@
@@ -17,7 +20,6 @@ $(BUILDDIR)/$(METHOD).elf: $(BUILDDIR)/$(METHOD).o
 
 $(BUILDDIR)/$(METHOD).o: $(METHOD).s
 	as -o $@ $<
-
 
 .PHONY: test
 
