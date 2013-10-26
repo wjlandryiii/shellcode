@@ -1,3 +1,6 @@
 .DS_Store
 *.pyc
+._README.md
+build/*
+
 
