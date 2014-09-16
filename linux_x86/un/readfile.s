@@ -52,5 +52,5 @@ exit:
 bottom:
 	call top
 
-.ascii "readfile.s\000"
+.ascii "flag.txt\000"
 
