@@ -99,3 +99,5 @@ clean:
 	rm -f execve_sh
 	rm -f readfile
 	rm -f reusefd
+	rm -f stage
+	rm -f ok

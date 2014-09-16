@@ -17,11 +17,13 @@ unsigned char *second_stage = NULL;
 void test_stage(FILE *fin, FILE *fout, FILE *ferr, pid_t pid){
 	int status;
 	char buff[1024] = {0};
+	int c;
 
 	assert(fwrite(second_stage, 1, 0x1000, fin) == 0x1000);
 	assert(waitpid(pid, &status, 0) == pid);
 	assert(status == 0);
-	if(!feof(ferr)){
+	if((c = fgetc(ferr)) != EOF){
+		ungetc(c, ferr);
 		fread(buff, 1, sizeof(buff), ferr);
 		fprintf(stderr, "Got error message:\n");
 		fprintf(stderr, "STARTMESSAGE\n");
@@ -31,7 +33,7 @@ void test_stage(FILE *fin, FILE *fout, FILE *ferr, pid_t pid){
 	}
 
 	assert(fgets(buff, sizeof(buff), fout) != NULL);
-	assert(strcpy(buff, "OK\n") == 0);
+	assert(strcmp(buff, "OK\n") == 0);
 	assert(fgetc(fout) == EOF);
 }
 

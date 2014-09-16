@@ -24,9 +24,6 @@ mm_offset:
 
 
 _start:
-	pushl	$mmapsz
-	call	puts
-	add	$4,%esp
 
 	pushl	$0
 	pushl	$-1
@@ -39,16 +36,11 @@ _start:
 
 	test	%eax,%eax
 	jnz	1f
-	pushl	$failsz
-	call	puts
-	add	$4,%esp
+	pushl	$1
 	call	exit
 
 1:
 	mov	%eax,%edx
-	pushl	$oksz
-	call	puts
-	add	$4,%esp
 
 	pushl	$0x1000
 	pushl	%edx
@@ -58,19 +50,14 @@ _start:
 
 	cmp	$0x0,%eax
 	jg	1f
-	pushl	$failsz
-	call	puts
-	add	$4,%esp
+	pushl	$1
 	call	exit
 
 1:
-	pushl	%eax
-	pushl	%edx
-	pushl	$1
-	call	write
+	call	*%edx
+	pushl	$0
+	call	exit
 	
-	jmp	exit
-
 
 
 
@@ -119,66 +106,6 @@ mmap2:
 	
 
 
-puts:
-.set buf,0x8
-
-	pushl	%ebp
-	movl	%esp,%ebp
-	pushl	%ebx
-	pushl	%ecx
-	pushl	%edx
-
-	movl	$-1,%ecx
-	movl	buf(%ebp),%edi
-	xor	%eax,%eax
-	cld
-repne	scasb
-	not	%ecx
-	lea	-1(%ecx),%eax
-
-	pushl	%eax
-	pushl	buf(%ebp)
-	pushl	$0x1
-	call	write
-	add	$0xC,%esp
-
-	popl	%edx
-	popl	%ecx
-	popl	%ebx
-	movl	%ebp,%esp
-	popl	%ebp
-	ret
-	
-
-
-write:
-.set fd,0x8
-.set buf,0xC
-.set count,0x10
-
-	pushl	%ebp
-	movl	%esp,%ebp
-	pushl	%ebx
-	pushl	%ecx
-	pushl	%edx
-
-	movl	fd(%ebp),%ebx
-	movl	buf(%ebp),%ecx
-	movl	count(%ebp),%edx	
-	movl	$0x4,%eax
-	int	$0x80
-	cmp	$0x0,%eax
-	jge	1f
-	movl	$-1,%eax
-
-1:
-	popl	%edx
-	popl	%ecx
-	popl	%ebx
-	movl	%ebp,%esp
-	popl	%ebp
-	ret
-
 read:
 .set fd,0x8
 .set buf,0xC
@@ -208,12 +135,17 @@ read:
 	ret
 
 exit:
+.set status,0x8
+	pushl	%ebp
+	movl	%esp,%ebp
+	pushl	%ebx
+
 	mov	$0x1,%eax
 	mov	$0x0,%ebx
 	int	$0x80
 	hlt
 
-oksz: 	.asciz	"OK\n"
-failsz:	.asciz 	"FAIL\n"
-mmapsz:	.asciz	"mmap...."
-readsz: .asciz	"read...."
+	popl	%ebx
+	movl	%ebp,%esp
+	popl	%ebp
+	ret
