@@ -61,3 +61,4 @@ clean:
 	rm -f test_helloworld
 	rm -f test_exit
 	rm -f test_readfile
+	rm -f test_stage
