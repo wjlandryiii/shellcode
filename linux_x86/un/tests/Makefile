@@ -4,6 +4,7 @@ LDFLAGS=-lc
 CFLAGS=-g -O0
 
 all: test_execve_sh test_ok test_helloworld
+.PHONY: clean
 
 all: test_stage
 
@@ -52,7 +53,6 @@ test_execve_sh.o: test_execve_sh.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 
-.PHONY: clean
 
 clean:
 	rm -f *.o

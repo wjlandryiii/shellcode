@@ -3,33 +3,41 @@ ASFLAGS=
 LD=ld
 LDFLAGS=
 
-all: helloworld.bin exit.bin connect.bin execve.bin execve_sh.bin readfile.bin reusefd.bin stage.bin ok.bin
 
+all: exit.bin \
+	connect.bin \
+	execve.bin \
+	execve_sh.bin \
+	readfile.bin \
+	reusefd.bin \
+	ok.bin \
+	helloworld.bin
+
+
+
+all: ok.bin
 ok.bin: ok
 	objcopy -O binary --only-section=.text $< $@
-
 ok: ok.o
 	$(LD) -o $@ $< $(LDFLAGS)
-
 ok.o: ok.s
 	$(AS) -o $@ $<
 
 
+all: stage.bin
 stage.bin: stage
 	objcopy -O binary --only-section=.text $< $@
-
 stage: stage.o
 	$(LD) -o $@ $<
-
 stage.o: stage.s
 	$(AS) -o $@ $<
 
+
+all: helloworld.bin
 helloworld.bin: helloworld
 	objcopy -O binary --only-section=.text $< $@
-
 helloworld: helloworld.o
 	$(LD) -o $@ $<
-
 helloworld.o: helloworld.s
 	$(AS) -o $@ $<
 
