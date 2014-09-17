@@ -6,5 +6,6 @@
 
 typedef  void (testfn_t)(FILE *, FILE *, FILE *, pid_t child);
 int test_shellcode(char *filename, testfn_t *testfn);
+void stop_before_running_shellcode(void);
 
 #endif

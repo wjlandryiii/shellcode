@@ -26,8 +26,8 @@ int main(int argc, char *argv[]){
 		goto usage;
 	} else {
 		test_shellcode(argv[1], test_ok);
+		return 0;
 	}
-	return 0;
 
 usage:
 	fprintf(stderr, "%s: [filename]\n", argv[0]);

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <err.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -9,6 +10,7 @@
 
 #include "runner.h"
 
+static int stop_flag = 0;
 static void (*shellcode)(void) = NULL;
 
 static int load_shellcode(char *file){
@@ -49,6 +51,9 @@ static int load_shellcode(char *file){
 }
 
 static void run_shellcode(void){
+	if(stop_flag){
+		raise(SIGSTOP);
+	}
 	shellcode();
 }
 
@@ -70,6 +75,8 @@ void parent(testfn_t *testfn, int in, int out, int err, pid_t child){
 	FILE *fin;
 	FILE *fout;
 	FILE *ferr;
+
+	alarm(5);
 
 	fin = fdopen(in, "w");
 	fout = fdopen(out, "r");
@@ -117,3 +124,6 @@ int test_shellcode(char *filename, testfn_t *testfn){
 	return 0;
 }	
 
+void stop_before_running_shellcode(void){
+	stop_flag = 1;
+}

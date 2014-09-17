@@ -5,7 +5,8 @@ ASFLAGS=
 LD=ld
 LDFLAGS=
 
-all: connect.bin \
+all: 	connect.bin \
+	connect_sh.bin \
 	execve.bin \
 	execve_sh.bin \
 	exit.bin \
@@ -21,6 +22,12 @@ connect.bin: connect.exe
 connect.exe: connect.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 connect.o: connect.s
+	$(AS) -o $@ $< $(ASFLAGS)
+connect_sh.bin: connect_sh.exe
+	objcopy -O binary --only-section=.text $< $@
+connect_sh.exe: connect_sh.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+connect_sh.o: connect_sh.s
 	$(AS) -o $@ $< $(ASFLAGS)
 execve.bin: execve.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -72,7 +79,8 @@ stage.o: stage.s
 	$(AS) -o $@ $< $(ASFLAGS)
 
 
-tests:	tests/test_execve_sh.exe \
+tests:	tests/test_connect_sh.exe \
+	tests/test_execve_sh.exe \
 	tests/test_exit.exe \
 	tests/test_helloworld.exe \
 	tests/test_ok.exe \
@@ -80,6 +88,10 @@ tests:	tests/test_execve_sh.exe \
 	tests/test_stage.exe
 
 tests/runner.o: tests/runner.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_connect_sh.exe: tests/test_connect_sh.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_connect_sh.o: tests/test_connect_sh.c tests/runner.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 tests/test_execve_sh.exe: tests/test_execve_sh.o tests/runner.o
 	$(CC) -o $@ $^
@@ -110,6 +122,7 @@ tests/test_stage.o: tests/test_stage.c tests/runner.h
 
 .PHONY: test
 test: all
+	tests/test_connect_sh.exe connect_sh.bin
 	tests/test_execve_sh.exe execve_sh.bin
 	tests/test_helloworld.exe helloworld.bin
 	tests/test_ok.exe ok.bin
