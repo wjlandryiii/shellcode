@@ -1,3 +1,7 @@
+/*
+ * Copyright 2013 Joseph Landry
+ */
+
 .section .text
 .global _start
 
