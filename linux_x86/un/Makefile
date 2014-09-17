@@ -1,111 +1,125 @@
+CC=cc
+CFLAGS=
 AS=as
 ASFLAGS=
 LD=ld
 LDFLAGS=
 
-
-all: exit.bin \
-	connect.bin \
+all: connect.bin \
 	execve.bin \
 	execve_sh.bin \
+	exit.bin \
+	helloworld.bin \
+	ok.bin \
 	readfile.bin \
 	reusefd.bin \
-	ok.bin \
-	helloworld.bin
+	stage.bin \
+	tests
 
-
-
-all: ok.bin
-ok.bin: ok
+connect.bin: connect.exe
 	objcopy -O binary --only-section=.text $< $@
-ok: ok.o
-	$(LD) -o $@ $< $(LDFLAGS)
-ok.o: ok.s
-	$(AS) -o $@ $<
-
-
-all: stage.bin
-stage.bin: stage
-	objcopy -O binary --only-section=.text $< $@
-stage: stage.o
-	$(LD) -o $@ $<
-stage.o: stage.s
-	$(AS) -o $@ $<
-
-
-all: helloworld.bin
-helloworld.bin: helloworld
-	objcopy -O binary --only-section=.text $< $@
-helloworld: helloworld.o
-	$(LD) -o $@ $<
-helloworld.o: helloworld.s
-	$(AS) -o $@ $<
-
-exit.bin: exit
-	objcopy -O binary --only-section=.text $< $@
-
-exit: exit.o
-	$(LD) -o $@ $<
-
-exit.o: exit.s
-	$(AS) -o $@ $<
-
-connect.bin: connect
-	objcopy -O binary --only-section=.text $< $@
-
-connect: connect.o
-	$(LD) -o $@ $<
-
+connect.exe: connect.o
+	$(LD) -o $@ $^ $(LDFLAGS)
 connect.o: connect.s
-	$(AS) -o $@ $<
-
-execve.bin: execve
+	$(AS) -o $@ $< $(ASFLAGS)
+execve.bin: execve.exe
 	objcopy -O binary --only-section=.text $< $@
-
-execve: execve.o
-	$(LD) -o $@ $<
-
+execve.exe: execve.o
+	$(LD) -o $@ $^ $(LDFLAGS)
 execve.o: execve.s
-	$(AS) -o $@ $<
-
-execve_sh.bin: execve_sh
+	$(AS) -o $@ $< $(ASFLAGS)
+execve_sh.bin: execve_sh.exe
 	objcopy -O binary --only-section=.text $< $@
-
-execve_sh: execve_sh.o
-	$(LD) -o $@ $<
-
+execve_sh.exe: execve_sh.o
+	$(LD) -o $@ $^ $(LDFLAGS)
 execve_sh.o: execve_sh.s
-	$(AS) -o $@ $<
-
-readfile.bin: readfile
+	$(AS) -o $@ $< $(ASFLAGS)
+exit.bin: exit.exe
 	objcopy -O binary --only-section=.text $< $@
-
-readfile: readfile.o
-	$(LD) -o $@ $<
-
+exit.exe: exit.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+exit.o: exit.s
+	$(AS) -o $@ $< $(ASFLAGS)
+helloworld.bin: helloworld.exe
+	objcopy -O binary --only-section=.text $< $@
+helloworld.exe: helloworld.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+helloworld.o: helloworld.s
+	$(AS) -o $@ $< $(ASFLAGS)
+ok.bin: ok.exe
+	objcopy -O binary --only-section=.text $< $@
+ok.exe: ok.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+ok.o: ok.s
+	$(AS) -o $@ $< $(ASFLAGS)
+readfile.bin: readfile.exe
+	objcopy -O binary --only-section=.text $< $@
+readfile.exe: readfile.o
+	$(LD) -o $@ $^ $(LDFLAGS)
 readfile.o: readfile.s
-	$(AS) -o $@ $<
-
-reusefd.bin: reusefd
+	$(AS) -o $@ $< $(ASFLAGS)
+reusefd.bin: reusefd.exe
 	objcopy -O binary --only-section=.text $< $@
-
-reusefd: reusefd.o
-	$(LD) -o $@ $<
-
+reusefd.exe: reusefd.o
+	$(LD) -o $@ $^ $(LDFLAGS)
 reusefd.o: reusefd.s
-	$(AS) -o $@ $<
+	$(AS) -o $@ $< $(ASFLAGS)
+stage.bin: stage.exe
+	objcopy -O binary --only-section=.text $< $@
+stage.exe: stage.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+stage.o: stage.s
+	$(AS) -o $@ $< $(ASFLAGS)
+
+
+tests:	tests/test_execve_sh.exe \
+	tests/test_exit.exe \
+	tests/test_helloworld.exe \
+	tests/test_ok.exe \
+	tests/test_readfile.exe \
+	tests/test_stage.exe
+
+tests/runner.o: tests/runner.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_execve_sh.exe: tests/test_execve_sh.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_execve_sh.o: tests/test_execve_sh.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_exit.exe: tests/test_exit.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_exit.o: tests/test_exit.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_helloworld.exe: tests/test_helloworld.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_helloworld.o: tests/test_helloworld.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_ok.exe: tests/test_ok.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_ok.o: tests/test_ok.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_readfile.exe: tests/test_readfile.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_readfile.o: tests/test_readfile.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+tests/test_stage.exe: tests/test_stage.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_stage.o: tests/test_stage.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+
+
+.PHONY: test
+test: all
+	tests/test_execve_sh.exe execve_sh.bin
+	tests/test_helloworld.exe helloworld.bin
+	tests/test_ok.exe ok.bin
+	tests/test_readfile.exe readfile.bin
+	tests/test_stage.exe stage.bin ok.bin
 
 .PHONY: clean
-
 clean:
-	rm -f *.bin
 	rm -f *.o
-	rm -f helloworld
-	rm -f exit
-	rm -f connect
-	rm -f execve
-	rm -f execve_sh
-	rm -f readfile
-	rm -f reusefd
-	rm -f stage
-	rm -f ok
+	rm -f *.exe
+	rm -f *.bin
+	rm -f tests/*.o
+	rm -f tests/*.exe
