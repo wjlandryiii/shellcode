@@ -8,6 +8,7 @@ LDFLAGS=
 all: 	connect.bin \
 	connect_sh.bin \
 	execve.bin \
+	execve_small.bin \
 	execve_sh.bin \
 	exit.bin \
 	helloworld.bin \
@@ -34,6 +35,12 @@ execve.bin: execve.exe
 execve.exe: execve.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 execve.o: execve.s
+	$(AS) -o $@ $< $(ASFLAGS)
+execve_small.bin: execve_small.exe
+	objcopy -O binary --only-section=.text $< $@
+execve_small.exe: execve_small.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+execve_small.o: execve_small.s
 	$(AS) -o $@ $< $(ASFLAGS)
 execve_sh.bin: execve_sh.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -123,6 +130,8 @@ tests/test_stage.o: tests/test_stage.c tests/runner.h
 .PHONY: test
 test: all
 	tests/test_connect_sh.exe connect_sh.bin
+	tests/test_execve_sh.exe execve.bin
+	tests/test_execve_sh.exe execve_small.bin
 	tests/test_execve_sh.exe execve_sh.bin
 	tests/test_helloworld.exe helloworld.bin
 	tests/test_ok.exe ok.bin
