@@ -1,0 +1,3 @@
+ascii:"sh\x00"
+ascii:"-c\x00"
+ascii:"/bin/sh\x00\x00"

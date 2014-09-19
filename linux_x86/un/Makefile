@@ -4,6 +4,7 @@ AS=as
 ASFLAGS=
 LD=ld
 LDFLAGS=
+GENPY=../../binpygen/bingen.py
 
 all: 	connect.bin \
 	connect_sh.bin \
@@ -138,6 +139,18 @@ test: all
 	tests/test_readfile.exe readfile.bin
 	tests/test_stage.exe stage.bin ok.bin
 
+
+pygen: 	connect_sh.py \
+	helloworld.py \
+	execve.py
+
+connect_sh.py: connect_sh.bin connect_sh.types
+	$(GENPY) -t connect_sh.types -o $@ $<
+helloworld.py: helloworld.bin helloworld.types
+	$(GENPY) -t helloworld.types -o $@ $<
+execve.py: execve.bin execve.types
+	$(GENPY) -t execve.types -o $@ $<
+
 .PHONY: clean
 clean:
 	rm -f *.o
@@ -145,3 +158,4 @@ clean:
 	rm -f *.bin
 	rm -f tests/*.o
 	rm -f tests/*.exe
+	rm -f *.py
