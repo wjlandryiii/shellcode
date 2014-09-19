@@ -76,10 +76,10 @@ class TestSourceGen(unittest.TestCase):
     def test_collect_depends(self):
         sio = StringIO.StringIO()
         datas = [
-            ('d', {"depends": []}),
-            ('d', {"depends": ["struct"]}),
-            ('d', {"depends": ["struct"]}),
-            ('d', {"depends": ["socket", "struct"]}),
+            ('d', ("", {"depends": []})),
+            ('d', ("", {"depends": ["struct"]})),
+            ('d', ("", {"depends": ["struct"]})),
+            ('d', ("", {"depends": ["socket", "struct"]})),
         ]
         deps = sourcegen.collect_depends(datas)
         self.assertIn("struct", deps)
@@ -88,15 +88,13 @@ class TestSourceGen(unittest.TestCase):
     def test_generate_source(self):
         datas = [
             ('u', "\x00\x11\x22\x33\x44"),
-            ('d', {"value": "daste", "depends": ["foo","bar"]})
+            ('d', ("", {"value": "daste", "depends": ["foo","bar"]})),
         ]
         test_source = sourcegen.generate_source(datas)
-        print test_source
         source = "import bar\n"\
                 "import foo\n"\
                 "\n"\
                 "shellcode = \"\"\n"\
                 "shellcode += \"\\x00\\x11\\x22\\x33\\x44\"\n"\
                 "shellcode += daste\n"
-        print source
         self.assertEqual(test_source, source)

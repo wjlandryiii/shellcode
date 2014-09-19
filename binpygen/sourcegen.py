@@ -30,7 +30,7 @@ def collect_depends(datas):
     for d in datas:
         if d[0] == 'd':
             deps.update(d[1][1]["depends"])
-    return deps
+    return sorted(deps)
 
 
 def generate_source(datas):
