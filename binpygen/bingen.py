@@ -36,7 +36,12 @@ def apply_rules_to_bin(binary, rules):
 
 def validate_source(source, binary):
     test_globals = {}
-    exec (source, test_globals)
+    try:
+        exec (source, test_globals)
+    except Exception as e:
+        print "ERROR IN GENERATED SOURCE"
+        print source
+        raise e
     if test_globals["shellcode"] != binary:
         raise Exception("Generated source did not evaluate to original binary")
 

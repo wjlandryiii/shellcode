@@ -60,21 +60,49 @@ def parse_hton(lnumber, type_, pattern):
         raise Exception("%d: Programmer error: %s not byte", (lnumber, type_))
 
     try:
-        byte_value = int(pattern, 0)
+        int_value = int(pattern, 0)
+        if type_ == "htons":
+            pattern_value = struct.pack("H", socket.htons(int_value))
+            value = "struct.pack(\"H\", socket.%s(%s))" % (type_, pattern)
+        elif type_ == "htonl":
+            pattern_value = struct.pack("I", socket.htonl(int_value))
+            value = "struct.pack(\"H\", socket.%s(%s))" % (type_, pattern)
+        else:
+            raise Exception("Programmer error")
     except ValueError as er:
         raise Exception("%d: value error: %s" % (lnumber, str(er)))
 
-    value = "socket.%s(%s)" % (type_, pattern)
     rule = (
         pattern_value,
         {
             "type": type_,
             "value": value,
-            "depends": ["socket"],
+            "depends": ["socket", "struct"],
         }
     )
     return rule
 
+IP_TYPES = ["ip", ]
+
+def parse_ip(lnumber, type_, pattern):
+    if type_ not in IP_TYPES:
+        raise Exception("%d: Programmer err: %s is not ip" % (lnumber, type_))
+
+    try:
+        pattern_value = socket.inet_aton(pattern)
+        value = "socket.inet_aton(\"%s\")" % (pattern,)
+    except socket.error:
+        Exception("%d: Not a valid IP address: %s" % (lnumber, pattern))
+
+    rule = (
+        pattern_value,
+        {
+            "type": type_,
+            "value": value,
+            "depends": ["socket",],
+        }
+    )
+    return rule
 
 def parse_line(lnumber, line):
     line = line.strip()
@@ -93,8 +121,10 @@ def parse_line(lnumber, line):
         return parse_integer(lnumber, type_, pattern)
     elif type_ in HTON_TYPES:
         return parse_hton(lnumber, type_, pattern)
+    elif type_ in IP_TYPES:
+        return parse_ip(lnumber, type_, pattern)
     else:
-        raise Exception("Unknown type: %s" %(type_,))
+        raise Exception("Unknown type: %s" % (type_,))
 
 
 def parse_file(f):
