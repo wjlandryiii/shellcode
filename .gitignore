@@ -3,5 +3,4 @@
 ._README.md
 *.o
 *.elf
-*.bin
 *.swp
