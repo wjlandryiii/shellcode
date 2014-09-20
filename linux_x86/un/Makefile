@@ -17,6 +17,7 @@ all: 	connect.bin \
 	ok.bin \
 	readfile.bin \
 	reusefd.bin \
+	reusefd_findip.bin \
 	stage.bin \
 	tests
 
@@ -86,6 +87,12 @@ reusefd.exe: reusefd.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 reusefd.o: reusefd.s
 	$(AS) -o $@ $< $(ASFLAGS)
+reusefd_findip.bin: reusefd_findip.exe
+	objcopy -O binary --only-section=.text $< $@
+reusefd_findip.exe: reusefd_findip.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+reusefd_findip.o: reusefd_findip.s
+	$(AS) -o $@ $< $(ASFLAGS)
 stage.bin: stage.exe
 	objcopy -O binary --only-section=.text $< $@
 stage.exe: stage.o
@@ -100,6 +107,7 @@ tests:	tests/test_connect_sh.exe \
 	tests/test_helloworld.exe \
 	tests/test_ok.exe \
 	tests/test_readfile.exe \
+	tests/test_reusefd_findip.exe \
 	tests/test_stage.exe
 
 tests/runner.o: tests/runner.c tests/runner.h
@@ -128,6 +136,12 @@ tests/test_readfile.exe: tests/test_readfile.o tests/runner.o
 	$(CC) -o $@ $^
 tests/test_readfile.o: tests/test_readfile.c tests/runner.h
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+tests/test_reusefd_findip.exe: tests/test_reusefd_findip.o tests/runner.o
+	$(CC) -o $@ $^
+tests/test_reusefd_findip.o: tests/test_reusefd_findip.c tests/runner.h
+	$(CC) -c -o $@ $< $(CFLAGS)
+
 tests/test_stage.exe: tests/test_stage.o tests/runner.o
 	$(CC) -o $@ $^
 tests/test_stage.o: tests/test_stage.c tests/runner.h
@@ -145,6 +159,7 @@ test: all
 	tests/test_helloworld.exe helloworld.bin
 	tests/test_ok.exe ok.bin
 	tests/test_readfile.exe readfile.bin
+	tests/test_reusefd_findip.exe reusefd_findip.bin
 	tests/test_stage.exe stage.bin ok.bin
 
 
@@ -158,6 +173,7 @@ pygen: 	connect.py \
 	ok.py \
 	readfile.py \
 	reusefd.py \
+	reusefd_findip.py \
 	stage.py
 
 connect.py: connect.bin connect.types
@@ -180,6 +196,8 @@ readfile.py: readfile.bin readfile.types
 	$(GENPY) -t readfile.types -o $@ $<
 reusefd.py: reusefd.bin reusefd.types
 	$(GENPY) -t reusefd.types -o $@ $<
+reusefd_findip.py: reusefd_findip.bin reusefd_findip.types
+	$(GENPY) -t reusefd_findip.types -o $@ $<
 stage.py: stage.bin
 	$(GENPY) -o $@ $<
 

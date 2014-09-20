@@ -15,34 +15,44 @@
 
 #include "runner.h"
 
+int bind_fd;
+int conn_fd;
 
-void test_connect_sh(FILE *fin, FILE *fout, FILE *ferr, pid_t pid){
-	char buff[64] = { 0 };
-	int status;
-	int fd;
-	int fd_conn;
-	struct sockaddr_in addr;
-	int addrlen;
+static void prerun_callback(void){
+
+	bind_fd = bind_tcp(htonl(INADDR_LOOPBACK), htons(1234));
+}
+
+static void prerun_postcontinue_callback(void){
+	conn_fd = accept_tcp(bind_fd);	
+}
+
+void test_reusefd(FILE *fin, FILE *fout, FILE *ferr, pid_t pid){
+	char buff[1024];
+	int sock_fd;
 	FILE *f_sock;
-	int y = 1;
-	int fd_bind;
-
-	fd_bind = bind_tcp(htonl(INADDR_ANY), htons(1234));
+	int status;
 
 	assert(waitpid(pid, NULL, WSTOPPED) == pid);
 	assert(kill(pid, SIGCONT) == 0);
+	
+	sock_fd = connect_tcp(htonl(INADDR_LOOPBACK), htons(1234));
 
-	fd_conn = accept_tcp(fd_bind);
+	f_sock = fdopen(sock_fd, "r+");
 
-	assert((f_sock = fdopen(fd_conn, "r+")) != NULL);
-	setlinebuf(f_sock);
 	assert(fputs("uname\n", f_sock) != EOF);
 	assert(fgets(buff, sizeof(buff), f_sock) != NULL);
 	assert(strcmp(buff, "Linux\n") == 0);
+
 	assert(fputs("exit\n", f_sock) != EOF);
 	assert(fgetc(f_sock) == EOF);
+
+	assert(waitpid(pid, &status, 0) == pid);
+	assert(status == 0);
+
+
 	fclose(f_sock);
-	close(fd);
+	close(sock_fd);
 	assert(fgetc(fout) == EOF);
 	fclose(fout);
 	assert(fgetc(ferr) == EOF);
@@ -54,10 +64,11 @@ int main(int argc, char *argv[]){
 		goto usage;
 	} else {
 		stop_before_running_shellcode();
-		test_shellcode(argv[1], test_connect_sh);
+		set_prerun_callback(prerun_callback);
+		set_prerun_postcontinue_callback(prerun_postcontinue_callback);
+		test_shellcode(argv[1], test_reusefd);
 		return 0;
 	}
-
 usage:
 	fprintf(stderr, "%s: [filename]\n", argv[0]);
 	return 1;
