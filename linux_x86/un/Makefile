@@ -12,6 +12,7 @@ all: 	connect.bin \
 	execve.bin \
 	execve_small.bin \
 	execve_sh.bin \
+	execve_sh_nz.bin \
 	exit.bin \
 	getsetuid_frag.bin \
 	getsetuid_nz_frag.bin \
@@ -59,6 +60,12 @@ execve_sh.bin: execve_sh.exe
 execve_sh.exe: execve_sh.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 execve_sh.o: execve_sh.s
+	$(AS) -o $@ $< $(ASFLAGS)
+execve_sh_nz.bin: execve_sh_nz.exe
+	objcopy -O binary --only-section=.text $< $@
+execve_sh_nz.exe: execve_sh_nz.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+execve_sh_nz.o: execve_sh_nz.s
 	$(AS) -o $@ $< $(ASFLAGS)
 exit.bin: exit.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -191,6 +198,7 @@ pygen: 	connect.py \
 	execve.py \
 	execve_small.py \
 	execve_sh.py \
+	execve_sh_nz.py \
 	getsetuid_frag.py \
 	getsetuid_nz_frag.py \
 	helloworld.py \
@@ -213,6 +221,8 @@ execve_small.py: execve_small.bin execve_small.types
 	$(GENPY) -t execve_small.types -o $@ $<
 execve_sh.py: execve_sh.bin execve_sh.types
 	$(GENPY) -t execve_sh.types -o $@ $<
+execve_sh_nz.py: execve_sh_nz.bin
+	$(GENPY) -o $@ $<
 getsetuid_frag.py: getsetuid_frag.bin
 	$(GENPY) -o $@ $<
 getsetuid_nz_frag.py: getsetuid_nz_frag.bin
