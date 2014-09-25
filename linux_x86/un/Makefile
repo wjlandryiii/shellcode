@@ -13,6 +13,8 @@ all: 	connect.bin \
 	execve_small.bin \
 	execve_sh.bin \
 	exit.bin \
+	getsetuid_frag.bin \
+	getsetuid_nz_frag.bin \
 	helloworld.bin \
 	ok.bin \
 	readfile.bin \
@@ -63,6 +65,18 @@ exit.bin: exit.exe
 exit.exe: exit.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 exit.o: exit.s
+	$(AS) -o $@ $< $(ASFLAGS)
+getsetuid_frag.bin: getsetuid_frag.exe
+	objcopy -O binary --only-section=.text $< $@
+getsetuid_frag.exe: getsetuid_frag.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+getsetuid_frag.o: getsetuid_frag.s
+	$(AS) -o $@ $< $(ASFLAGS)
+getsetuid_nz_frag.bin: getsetuid_nz_frag.exe
+	objcopy -O binary --only-section=.text $< $@
+getsetuid_nz_frag.exe: getsetuid_nz_frag.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+getsetuid_nz_frag.o: getsetuid_nz_frag.s
 	$(AS) -o $@ $< $(ASFLAGS)
 helloworld.bin: helloworld.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -174,10 +188,12 @@ test: all
 pygen: 	connect.py \
 	connect_execve.py \
 	connect_sh.py \
-	helloworld.py \
 	execve.py \
 	execve_small.py \
 	execve_sh.py \
+	getsetuid_frag.py \
+	getsetuid_nz_frag.py \
+	helloworld.py \
 	ok.py \
 	readfile.py \
 	readfile_nz.py \
@@ -191,14 +207,18 @@ connect_execve.py: connect_execve.bin connect_execve.types
 	$(GENPY) -t connect_execve.types -o $@ $<
 connect_sh.py: connect_sh.bin connect_sh.types
 	$(GENPY) -t connect_sh.types -o $@ $<
-helloworld.py: helloworld.bin helloworld.types
-	$(GENPY) -t helloworld.types -o $@ $<
 execve.py: execve.bin execve.types
 	$(GENPY) -t execve.types -o $@ $<
 execve_small.py: execve_small.bin execve_small.types
 	$(GENPY) -t execve_small.types -o $@ $<
 execve_sh.py: execve_sh.bin execve_sh.types
 	$(GENPY) -t execve_sh.types -o $@ $<
+getsetuid_frag.py: getsetuid_frag.bin
+	$(GENPY) -o $@ $<
+getsetuid_nz_frag.py: getsetuid_nz_frag.bin
+	$(GENPY) -o $@ $<
+helloworld.py: helloworld.bin helloworld.types
+	$(GENPY) -t helloworld.types -o $@ $<
 ok.py: ok.bin
 	$(GENPY) -o $@ $<
 readfile.py: readfile.bin readfile.types
