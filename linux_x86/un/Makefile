@@ -16,6 +16,7 @@ all: 	connect.bin \
 	helloworld.bin \
 	ok.bin \
 	readfile.bin \
+	readfile_nz.bin \
 	reusefd.bin \
 	reusefd_findip.bin \
 	stage.bin \
@@ -80,6 +81,12 @@ readfile.bin: readfile.exe
 readfile.exe: readfile.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 readfile.o: readfile.s
+	$(AS) -o $@ $< $(ASFLAGS)
+readfile_nz.bin: readfile_nz.exe
+	objcopy -O binary --only-section=.text $< $@
+readfile_nz.exe: readfile_nz.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+readfile_nz.o: readfile_nz.s
 	$(AS) -o $@ $< $(ASFLAGS)
 reusefd.bin: reusefd.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -159,6 +166,7 @@ test: all
 	tests/test_helloworld.exe helloworld.bin
 	tests/test_ok.exe ok.bin
 	tests/test_readfile.exe readfile.bin
+	tests/test_readfile.exe readfile_nz.bin
 	tests/test_reusefd_findip.exe reusefd_findip.bin
 	tests/test_stage.exe stage.bin ok.bin
 
@@ -172,6 +180,7 @@ pygen: 	connect.py \
 	execve_sh.py \
 	ok.py \
 	readfile.py \
+	readfile_nz.py \
 	reusefd.py \
 	reusefd_findip.py \
 	stage.py
@@ -194,6 +203,8 @@ ok.py: ok.bin
 	$(GENPY) -o $@ $<
 readfile.py: readfile.bin readfile.types
 	$(GENPY) -t readfile.types -o $@ $<
+readfile_nz.py: readfile_nz.bin readfile_nz.types
+	$(GENPY) -t readfile_nz.types -o $@ $<
 reusefd.py: reusefd.bin reusefd.types
 	$(GENPY) -t reusefd.types -o $@ $<
 reusefd_findip.py: reusefd_findip.bin reusefd_findip.types

@@ -11,15 +11,23 @@
 
 #include "runner.h"
 
-char *filename = "flag.txt";
-char *flagfile = "The key is:\nwuba luba dub dub!\n";
+char *filename = "/etc/passwd";
 
 void test_readfile(FILE *fin, FILE *fout, FILE *ferr, pid_t pid){
-	char buff[1024] = { 0 };
+	FILE *f;
 	int status;
+	int c_f;
+	int c_sc;
+
+	f = fopen(filename, "r");
+
+	do {
+		c_f = fgetc(f);
+		c_sc = fgetc(fout);
+		assert(c_f == c_sc);
+	} while(c_f != EOF && c_sc != EOF);
 
 	assert(waitpid(pid, &status, 0) == pid);
-	assert(fread(buff, strlen(flagfile), 1, fout) == 1);
 	assert(fgetc(fout) == EOF);
 	assert(fgetc(ferr) == EOF);
 }
@@ -30,16 +38,8 @@ int main(int argc, char *argv[]){
 	if(argc < 2){
 		goto usage;
 	} else {
-		if((f = fopen(filename, "w")) == NULL){
-			fprintf(stderr, "%s:%d fopen()\n", __FILE__, __LINE__);
-			exit(1);
-		} else if(fwrite(flagfile, strlen(flagfile), 1, f) != 1){
-			fprintf(stderr,"%s:%d fwrite()\n", __FILE__, __LINE__);
-		} else {
-			fclose(f);
-			test_shellcode(argv[1], test_readfile);
-			remove(filename);
-		}
+		test_shellcode(argv[1], test_readfile);
+		remove(filename);
 		return 0;
 	}
 usage:
