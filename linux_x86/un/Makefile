@@ -17,6 +17,7 @@ all: 	connect.bin \
 	getsetuid_frag.bin \
 	getsetuid_nz_frag.bin \
 	helloworld.bin \
+	jmpesp.bin \
 	ok.bin \
 	readfile.bin \
 	readfile_nz.bin \
@@ -90,6 +91,12 @@ helloworld.bin: helloworld.exe
 helloworld.exe: helloworld.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 helloworld.o: helloworld.s
+	$(AS) -o $@ $< $(ASFLAGS)
+jmpesp.bin: jmpesp.exe
+	objcopy -O binary --only-section=.text $< $@
+jmpesp.exe: jmpesp.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+jmpesp.o: jmpesp.s
 	$(AS) -o $@ $< $(ASFLAGS)
 ok.bin: ok.exe
 	objcopy -O binary --only-section=.text $< $@
@@ -202,6 +209,7 @@ pygen: 	connect.py \
 	getsetuid_frag.py \
 	getsetuid_nz_frag.py \
 	helloworld.py \
+	jmpesp.py \
 	ok.py \
 	readfile.py \
 	readfile_nz.py \
@@ -229,6 +237,8 @@ getsetuid_nz_frag.py: getsetuid_nz_frag.bin
 	$(GENPY) -o $@ $<
 helloworld.py: helloworld.bin helloworld.types
 	$(GENPY) -t helloworld.types -o $@ $<
+jmpesp.py: jmpesp.bin
+	$(GENPY) -o $@ $<
 ok.py: ok.bin
 	$(GENPY) -o $@ $<
 readfile.py: readfile.bin readfile.types
