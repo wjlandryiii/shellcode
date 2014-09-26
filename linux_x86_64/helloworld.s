@@ -9,10 +9,7 @@
 .set 	SYS_EXIT,60
 
 _start:
-	jmp	end
-
-begin:
-	pop	%rsi
+	lea	hello_string(%rip), %rsi
 	xor	%rdx,%rdx
 1:
 	cmpb	$0, (%rsi,%rdx)
@@ -35,9 +32,6 @@ exit:
 	movb	$SYS_EXIT,%al
 	syscall
 	hlt
-
-end:
-	call	begin
 
 hello_string:
 .ascii "Hello World!\n\x00"
