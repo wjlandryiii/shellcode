@@ -17,6 +17,7 @@ all: 	connect.bin \
 	getsetuid_frag.bin \
 	getsetuid_nz_frag.bin \
 	helloworld.bin \
+	hexdump.bin \
 	jmpesp.bin \
 	ok.bin \
 	readfile.bin \
@@ -91,6 +92,12 @@ helloworld.bin: helloworld.exe
 helloworld.exe: helloworld.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 helloworld.o: helloworld.s
+	$(AS) -o $@ $< $(ASFLAGS)
+hexdump.bin: hexdump.exe
+	objcopy -O binary --only-section=.text $< $@
+hexdump.exe: hexdump.o
+	$(LD) -o $@ $^ $(LDFLAGS)
+hexdump.o: hexdump.s
 	$(AS) -o $@ $< $(ASFLAGS)
 jmpesp.bin: jmpesp.exe
 	objcopy -O binary --only-section=.text $< $@
