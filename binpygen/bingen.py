@@ -3,6 +3,8 @@
 # Copyright 2014 Joseph Landry
 #
 
+import os
+
 import typesfile
 import sourcegen
 
@@ -75,6 +77,11 @@ def main(argv):
             types_filename = a
         elif o == "-o":
             output_filename = a
+
+    if types_filename is None:
+        filename = os.path.splitext(binary_filename)[0] + ".types"
+        if os.path.isfile(filename):
+            types_filename = filename
 
     source = generate_python_shellcode(binary_filename, types_filename)
     if output_filename is not None:
