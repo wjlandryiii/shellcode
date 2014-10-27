@@ -1,18 +1,12 @@
 my shellcode
 ============
 
-shellcode is in the shellcode directory.  the higherarchy is:
+binpygen
+--------
 
-```
-shellcode
-	[arch]
-		[os]
-			[optimization strategy]
-				src/      assembly and python source
-				obj/      object files of source
-				elf/      assembled elfs
-				bin/      .text segment of elfs
-				py/       python code of string containing .text segment
-				tests/    python tests
-				testing/  programs and scripts to run tests
-```
+Scripts for generating python strings of shellcode.
+
+linux_\[platform\]
+------------------
+
+Shellcode source for \[platform\]
