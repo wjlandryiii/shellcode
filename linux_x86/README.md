@@ -1,28 +1,54 @@
+Linux x86 Shellcode
+===================
 
-<http://www.win.tue.nl/~aeb/linux/lk/lk-4.html>
 
-"The system call number goes into %eax, the first parameter in %ebx, the second in %ecx, the third in %edx, the fourth in %esi, the fifth in %edi, the sixth in %ebp"
+files
+-----
 
-Various socketcall numbers <http://www.scs.stanford.edu/histar/src/pkg/uclibc/libc/inet/socketcalls.c>
+###connect (fragment)
+Established a connection to a TCP server, then falls through.
+
+###connect_sh
+Established a connection to a TCP server, redirects stdio to the socket,
+then executes /bin/sh.
+
+###connect_execve
+Established a connection to a TCP server, redirects stdio to the socket, then
+runs a program with command line arguments.
+
+###connect_readfile
+Established a connection to a TCP server, writes the contents of a file to
+the socket, then exits.
+
+###execve
+Runs a program with command line arguments.
+
+###execve_sh
+A smaller version of execve that only executes /bin/sh.
+
+###exit
+Exits
+
+###helloworld
+Prints the string "Hello World!\n" to stdout then exits.
+
+###ok
+Prints the string "OK\n" to stdout then exits. Used for testing.
+
+###readfile
+Reads the contents of a file to stdout then exits.
+
+###reusefd (fragment)
+dup2() file descriptor 4 to 0,1,2 then falls through
+
+###stage
+reads 4k from stdin, then executes it.
+
+
+Notes
+-----
 
 ```
-#define SYS_SOCKET      1
-#define SYS_BIND        2
-#define SYS_CONNECT     3
-#define SYS_LISTEN      4
-#define SYS_ACCEPT      5
-#define SYS_GETSOCKNAME 6
-#define SYS_GETPEERNAME 7
-#define SYS_SOCKETPAIR  8
-#define SYS_SEND        9
-#define SYS_RECV        10
-#define SYS_SENDTO      11
-#define SYS_RECVFROM    12
-#define SYS_SHUTDOWN    13
-#define SYS_SETSOCKOPT  14
-#define SYS_GETSOCKOPT  15
-#define SYS_SENDMSG     16
-#define SYS_RECVMSG     17
+sycall table: arch/x86/syscalls/syscall_32.tbl
+grep -r CONSTANT /usr/include
 ```
-
-
