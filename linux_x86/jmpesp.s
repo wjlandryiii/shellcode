@@ -6,4 +6,4 @@
 .global _start
 
 _start:
-	jmp	%esp
+	jmp	*%esp

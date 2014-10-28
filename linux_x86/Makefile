@@ -2,7 +2,8 @@ CC=cc
 CFLAGS=-m32 -nostdlib
 GENPY=../binpygen/bingen.py
 
-all: 	connect.bin \
+all: 	exefiles \
+	connect.bin \
 	connect_execve.bin \
 	connect_sh.bin \
 	execve.bin \
@@ -21,6 +22,26 @@ all: 	connect.bin \
 	reusefd.bin \
 	reusefd_findip.bin \
 	stage.bin
+
+exefiles: 	connect.exe \
+	connect_execve.exe \
+	connect_sh.exe \
+	execve.exe \
+	execve_small.exe \
+	execve_sh.exe \
+	execve_sh_nz.exe \
+	exit.exe \
+	getsetuid_frag.exe \
+	getsetuid_nz_frag.exe \
+	helloworld.exe \
+	hexdump.exe \
+	jmpesp.exe \
+	ok.exe \
+	readfile.exe \
+	readfile_nz.exe \
+	reusefd.exe \
+	reusefd_findip.exe \
+	stage.exe
 
 %.exe: %.s
 	$(CC) $(CFLAGS) -o $@ $<
